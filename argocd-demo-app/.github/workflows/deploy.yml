@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:   # Permet de lancer manuellement
 
 jobs:
   build-and-scan:
@@ -25,7 +26,7 @@ jobs:
         with:
           image-ref: my-app:latest
           format: table
-          exit-code: 1  # 0 = OK, 1 = fail if vulnerabilities found
+          exit-code: 1
           ignore-unfixed: false
 
       - name: Log in to Harbor
@@ -33,9 +34,12 @@ jobs:
         with:
           username: ${{ secrets.HARBOR_USERNAME }}
           password: ${{ secrets.HARBOR_PASSWORD }}
-          registry: my-harbor-domain.com
+          registry: harbor.example.com   # Remplace par ton URL Harbor
+
+      - name: Tag Docker image for Harbor
+        run: |
+          docker tag my-app:latest harbor.example.com/project/my-app:latest
 
       - name: Push Docker image to Harbor
         run: |
-          docker tag my-app:latest my-harbor-domain.com/library/my-app:latest
-          docker push my-harbor-domain.com/library/my-app:latest
+          docker push harbor.example.com/project/my-app:latest
